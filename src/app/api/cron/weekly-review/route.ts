@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateToken } from "@/lib/tokens";
 import { getResend } from "@/lib/resend";
+import { getSetting } from "@/lib/settings";
 import { ReviewRequestEmail } from "@/emails/review-request";
 import { isAcuityEnabled, getAppointments } from "@/lib/acuity";
 
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!isAcuityEnabled()) {
+  if (!(await isAcuityEnabled())) {
     return NextResponse.json({
       message: "Acuity disabled — use CSV upload instead",
       processed: 0,
@@ -130,11 +131,10 @@ export async function GET(request: Request) {
 
     // Send emails to new patients
     let emailsSent = 0;
-    const fromName = client.email_from_name || "ReviewFlow";
-    const fromEmail =
-      (process.env.EMAIL_FROM || "ReviewFlow <feedback@dadadigital.com>").match(
-        /<(.+)>/
-      )?.[1] || "feedback@dadadigital.com";
+    const fromName = client.email_from_name || "MaMaDigital";
+    const emailFromSetting = await getSetting("EMAIL_FROM") || "ReviewFlow <feedback@dadadigital.com>";
+    const fromEmail = emailFromSetting.match(/<(.+)>/)?.[1] || "feedback@dadadigital.com";
+    const resend = await getResend();
 
     for (const patient of newPatients) {
       const token = generateToken();
@@ -160,7 +160,7 @@ export async function GET(request: Request) {
 
       // Send email
       try {
-        const { error } = await getResend().emails.send({
+        const { error } = await resend.emails.send({
           from: `${fromName} <${fromEmail}>`,
           to: patient.email,
           subject: `How was your experience with ${client.name}?`,

@@ -7,11 +7,11 @@ import {
   LayoutDashboard,
   Building2,
   Send,
-  Zap,
   BarChart3,
   LogOut,
   Menu,
   X,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,6 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/clients", label: "Clients", icon: Building2 },
   { href: "/dashboard/send", label: "Send Reviews", icon: Send },
-  { href: "/dashboard/automation", label: "Automation", icon: Zap },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
@@ -52,7 +51,7 @@ export function Sidebar() {
   const nav = (
     <>
       <div className="px-5 py-5">
-        <h1 className="text-xl font-bold text-gray-900">ReviewFlow</h1>
+        <h1 className="text-xl font-bold text-gray-900">MaMaDigital</h1>
         <p className="text-xs text-gray-500 mt-0.5">DadaDigital</p>
       </div>
 
@@ -74,7 +73,19 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-gray-200">
+      <div className="p-3 border-t border-gray-200 space-y-0.5">
+        <Link
+          href="/dashboard/settings"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]",
+            isActive("/dashboard/settings")
+              ? "bg-brand-light text-brand"
+              : "text-gray-600 hover:bg-gray-100 active:bg-gray-200"
+          )}
+        >
+          <Settings className="h-5 w-5 shrink-0" />
+          Settings
+        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 active:bg-gray-200 w-full transition-colors min-h-[44px]"
@@ -90,7 +101,7 @@ export function Sidebar() {
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-900">ReviewFlow</h1>
+        <h1 className="text-lg font-bold text-gray-900">MaMaDigital</h1>
         <button
           onClick={() => setOpen(!open)}
           className="p-2.5 -mr-2 text-gray-600 hover:bg-gray-100 active:bg-gray-200 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center"

@@ -6,68 +6,54 @@ import { getSetting } from "@/lib/settings";
 import { ReviewRequestEmail } from "@/emails/review-request";
 
 export async function POST(request: Request) {
-  const { clientId, customerName, customerEmail, locationId, source } =
-    await request.json();
+  const { testEmail, clientId } = await request.json();
 
-  if (!clientId || !customerName || !customerEmail) {
-    return NextResponse.json(
-      { error: "clientId, customerName, and customerEmail are required" },
-      { status: 400 }
-    );
+  if (!testEmail) {
+    return NextResponse.json({ error: "testEmail is required" }, { status: 400 });
   }
 
   const supabase = await createClient();
 
-  // Fetch client
-  const { data: client, error: clientError } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("id", clientId)
-    .single();
-
-  if (clientError || !client) {
-    return NextResponse.json({ error: "Client not found" }, { status: 404 });
+  // Use specified client or first active client
+  let client;
+  if (clientId) {
+    const { data } = await supabase.from("clients").select("*").eq("id", clientId).single();
+    client = data;
+  } else {
+    const { data } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("is_active", true)
+      .order("name")
+      .limit(1)
+      .single();
+    client = data;
   }
 
-  // Generate token and create review request
+  if (!client) {
+    return NextResponse.json({ error: "No active client found" }, { status: 404 });
+  }
+
   const token = generateToken();
 
+  // Create review request with test source
   const { data: reviewRequest, error: insertError } = await supabase
     .from("review_requests")
     .insert({
-      client_id: clientId,
-      customer_name: customerName,
-      customer_email: customerEmail,
+      client_id: client.id,
+      customer_name: "Test User",
+      customer_email: testEmail,
       token,
       status: "pending",
-      location_id: locationId || null,
-      source: source || "manual",
+      source: "test",
     })
     .select()
     .single();
 
   if (insertError || !reviewRequest) {
-    return NextResponse.json(
-      { error: "Failed to create review request" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create review request" }, { status: 500 });
   }
 
-  // Record patient
-  const email = customerEmail.toLowerCase().trim();
-  const nameParts = customerName.trim().split(/\s+/);
-  await supabase.from("patients").upsert(
-    {
-      client_id: clientId,
-      email,
-      first_name: nameParts[0] || null,
-      last_name: nameParts.slice(1).join(" ") || null,
-      source: source || "manual",
-    },
-    { onConflict: "client_id,email", ignoreDuplicates: true }
-  );
-
-  // Send email
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const fromName = client.email_from_name || "MaMaDigital";
   const emailFrom = await getSetting("EMAIL_FROM") || "ReviewFlow <feedback@dadadigital.com>";
@@ -76,10 +62,10 @@ export async function POST(request: Request) {
   const resend = await getResend();
   const { error: emailError } = await resend.emails.send({
     from: `${fromName} <${fromEmail}>`,
-    to: customerEmail,
-    subject: `How was your experience with ${client.name}?`,
+    to: testEmail,
+    subject: `[TEST] How was your experience with ${client.name}?`,
     react: ReviewRequestEmail({
-      customerName,
+      customerName: "Test User",
       clientName: client.name,
       clientLogoUrl: client.logo_url || undefined,
       brandColor: client.brand_color,
@@ -89,13 +75,9 @@ export async function POST(request: Request) {
   });
 
   if (emailError) {
-    return NextResponse.json(
-      { error: "Failed to send email" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to send email: " + emailError.message }, { status: 500 });
   }
 
-  // Update status to sent
   await supabase
     .from("review_requests")
     .update({ status: "sent", sent_at: new Date().toISOString() })

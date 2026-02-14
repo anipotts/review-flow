@@ -9,10 +9,11 @@ export async function GET(request: Request) {
 
   const supabase = await createClient();
 
-  // Build click events query
+  // Build click events query (exclude test source)
   let clickQuery = supabase
     .from("click_events")
     .select("*, review_requests!inner(*, clients!inner(name))")
+    .neq("review_requests.source", "test")
     .order("clicked_at", { ascending: false });
 
   if (clientId) {
@@ -31,10 +32,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Build stats
+  // Build stats (exclude test source)
   let requestsQuery = supabase
     .from("review_requests")
-    .select("id, status, opened_at, source, location_id", { count: "exact" });
+    .select("id, status, opened_at, source, location_id", { count: "exact" })
+    .neq("source", "test");
 
   if (clientId) {
     requestsQuery = requestsQuery.eq("client_id", clientId);

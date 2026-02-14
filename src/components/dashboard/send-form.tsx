@@ -7,6 +7,9 @@ import { Upload, FileText, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { CsvColumnMapper } from "@/components/dashboard/csv-column-mapper";
+import { detectColumns, mapRow } from "@/lib/csv-columns";
+import type { ColumnMapping } from "@/lib/csv-columns";
 import type { Client, Location } from "@/lib/supabase/types";
 
 interface CsvRow {
@@ -31,6 +34,11 @@ export function SendForm({ clients }: { clients: Client[] }) {
   const [bulkProgress, setBulkProgress] = useState({ sent: 0, total: 0 });
   const [bulkSending, setBulkSending] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Smart CSV state
+  const [rawHeaders, setRawHeaders] = useState<string[]>([]);
+  const [rawData, setRawData] = useState<Record<string, string>[]>([]);
+  const [showMapper, setShowMapper] = useState(false);
 
   // Fetch locations when client changes
   useEffect(() => {
@@ -71,6 +79,24 @@ export function SendForm({ clients }: { clients: Client[] }) {
       .finally(() => setFilterLoading(false));
   }, [csvRows, firstTimeOnly, clientId]);
 
+  function applyMapping(mapping: ColumnMapping, data: Record<string, string>[]) {
+    const rows = data
+      .map((row) => mapRow(row, mapping))
+      .filter((r): r is CsvRow => r !== null)
+      .slice(0, 500);
+
+    setCsvRows(rows);
+    setShowMapper(false);
+    setRawHeaders([]);
+    setRawData([]);
+
+    if (rows.length === 0) {
+      toast.error("No valid rows found after mapping.");
+    } else {
+      toast.success(`${rows.length} rows loaded`);
+    }
+  }
+
   async function handleSingleSend(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -102,22 +128,54 @@ export function SendForm({ clients }: { clients: Client[] }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    Papa.parse<CsvRow>(file, {
+    Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: true,
       complete(results) {
-        const rows = results.data
-          .filter((r) => r.name && r.email)
-          .slice(0, 500);
-        setCsvRows(rows);
-        if (rows.length === 0) {
-          toast.error("No valid rows. CSV needs 'name' and 'email' columns.");
+        const headers = results.meta.fields || [];
+        const data = results.data;
+
+        if (headers.length === 0 || data.length === 0) {
+          toast.error("CSV appears to be empty.");
+          return;
+        }
+
+        const mapping = detectColumns(headers);
+
+        if (mapping.confidence === "exact" || mapping.confidence === "fuzzy") {
+          if (mapping.confidence === "fuzzy") {
+            toast.info("Auto-detected columns (fuzzy match)");
+          }
+          applyMapping(mapping, data);
+        } else {
+          // Show mapper UI for ambiguous columns
+          setRawHeaders(headers);
+          setRawData(data);
+          setShowMapper(true);
         }
       },
       error() {
         toast.error("Failed to parse CSV");
       },
     });
+  }
+
+  function handleMapperConfirm(nameColumn: string, emailColumn: string) {
+    const mapping: ColumnMapping = {
+      nameColumn,
+      firstNameColumn: null,
+      lastNameColumn: null,
+      emailColumn,
+      confidence: "exact",
+    };
+    applyMapping(mapping, rawData);
+  }
+
+  function handleMapperCancel() {
+    setShowMapper(false);
+    setRawHeaders([]);
+    setRawData([]);
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function handleBulkSend() {
@@ -272,40 +330,51 @@ export function SendForm({ clients }: { clients: Client[] }) {
               </div>
             </label>
 
+            {/* Column mapper (shown when auto-detection fails) */}
+            {showMapper && (
+              <CsvColumnMapper
+                headers={rawHeaders}
+                onConfirm={handleMapperConfirm}
+                onCancel={handleMapperCancel}
+              />
+            )}
+
             {/* Upload area */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Upload CSV
-              </label>
-              <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-colors min-h-[100px]">
-                {csvRows.length > 0 ? (
-                  <>
-                    <FileText className="h-6 w-6 text-brand" />
-                    <span className="text-sm font-medium text-gray-900">
-                      {csvRows.length} rows loaded
-                    </span>
-                    <span className="text-xs text-gray-500">Tap to replace</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-6 w-6 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-600">
-                      Choose a CSV file
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      Columns: name, email
-                    </span>
-                  </>
-                )}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
+            {!showMapper && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Upload CSV
+                </label>
+                <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-colors min-h-[100px]">
+                  {csvRows.length > 0 ? (
+                    <>
+                      <FileText className="h-6 w-6 text-brand" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {csvRows.length} rows loaded
+                      </span>
+                      <span className="text-xs text-gray-500">Tap to replace</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-600">
+                        Choose a CSV file
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        CSV with name and email columns
+                      </span>
+                    </>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
 
             {/* First-time filter status */}
             {csvRows.length > 0 && firstTimeOnly && (

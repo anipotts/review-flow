@@ -16,15 +16,18 @@ export default async function DashboardPage() {
       supabase
         .from("review_requests")
         .select("id", { count: "exact", head: true })
+        .neq("source", "test")
         .gte("sent_at", monthStart),
       supabase
         .from("review_requests")
         .select("id", { count: "exact", head: true })
+        .neq("source", "test")
         .eq("status", "clicked"),
       supabase.from("click_events").select("rating"),
       supabase
         .from("review_requests")
         .select("*, clients(name)")
+        .neq("source", "test")
         .order("created_at", { ascending: false })
         .limit(10),
       supabase

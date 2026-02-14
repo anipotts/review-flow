@@ -1,4 +1,4 @@
-# ReviewFlow
+# MaMaDigital
 
 A review collection system for DadaDigital. Send beautiful star-rating emails to customers after service — 5-star clicks route to Google Reviews, 1-4 stars route to the client's contact page.
 
@@ -14,8 +14,8 @@ Send Email → Customer clicks star → 5★ → Google Reviews
 
 ```bash
 # Clone
-git clone https://github.com/anipotts/reviewflow.git
-cd reviewflow
+git clone https://github.com/anipotts/mamadigital.git
+cd mamadigital
 
 # Install
 npm install
@@ -24,8 +24,8 @@ npm install
 cp .env.example .env.local
 # Fill in your Supabase + Resend credentials
 
-# Run the database migration
-# Copy contents of supabase/migrations/001_initial_schema.sql
+# Run the database migrations
+# Copy contents of supabase/migrations/*.sql
 # and run in your Supabase SQL Editor
 
 # Start dev server
@@ -39,7 +39,7 @@ Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to 
 ### 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to SQL Editor → paste and run `supabase/migrations/001_initial_schema.sql`
+2. Go to SQL Editor → paste and run all migrations in `supabase/migrations/`
 3. Copy your project URL and anon key from Settings → API
 
 ### 2. Resend
@@ -64,11 +64,12 @@ Add these DNS records for Resend email sending:
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `RESEND_API_KEY` | Resend API key |
-| `EMAIL_FROM` | Sender address (e.g. `ReviewFlow <feedback@dadadigital.com>`) |
-| `NEXT_PUBLIC_APP_URL` | App URL (e.g. `https://reviewflow.dadadigital.com`) |
-| `ADMIN_PASSWORD` | Dashboard login password |
-| `WEBHOOK_SECRET` | Secret for future webhook integrations |
+| `RESEND_API_KEY` | Resend API key (or configure in Settings UI) |
+| `EMAIL_FROM` | Sender address (e.g. `MaMaDigital <feedback@dadadigital.com>`) |
+| `NEXT_PUBLIC_APP_URL` | App URL (e.g. `https://mamadigital.dadadigital.com`) |
+| `ADMIN_PASSWORD` | Dashboard login password (or configure in Settings UI) |
+| `WEBHOOK_SECRET` | Secret for Acuity webhook integrations |
+| `CRON_SECRET` | Secret for weekly cron job |
 
 ### 4. Deploy to Vercel
 
@@ -86,7 +87,7 @@ Add these DNS records for Resend email sending:
 
 ## Tech Stack
 
-- **Next.js 15** (App Router, Server Components)
+- **Next.js 16** (App Router, Server Components)
 - **Supabase** (PostgreSQL database)
 - **Resend** + **React Email** (transactional emails)
 - **Tailwind CSS v4** (styling)
@@ -98,10 +99,13 @@ Add these DNS records for Resend email sending:
 Use the [Place ID Finder](https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder).
 
 **Can I send bulk emails?**
-Yes — use the "Bulk CSV" mode on the Send page. Upload a CSV with `name` and `email` columns.
+Yes — use the "Bulk CSV" mode on the Send page. Upload any CSV with name and email columns — smart detection handles various column names.
 
 **What happens if a customer clicks multiple stars?**
 Each click is logged as a separate event. The review request status shows the most recent click.
 
 **How is auth handled?**
-Simple password auth via an environment variable. A single HTTP-only cookie is set on login. There's no user registration — it's a single-admin system.
+Simple password auth via Settings or environment variable. A single HTTP-only cookie is set on login. There's no user registration — it's a single-admin system.
+
+**Can I change API keys without redeploying?**
+Yes — use the Settings page in the dashboard. Changes take effect within 60 seconds.

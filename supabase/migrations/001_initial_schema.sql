@@ -1,4 +1,4 @@
--- ReviewFlow: Initial Schema
+-- MaMaDigital: Initial Schema
 -- Run this in Supabase SQL Editor or via `supabase db push`
 
 -- ============================================================

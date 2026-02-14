@@ -1,4 +1,4 @@
--- ReviewFlow: Multi-location, Acuity integration, open tracking
+-- MaMaDigital: Multi-location, Acuity integration, open tracking
 -- Phase 1 migration
 
 -- ============================================================

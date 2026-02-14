@@ -1,3 +1,9 @@
+export interface AppSetting {
+  key: string;
+  value: string;
+  updated_at: string;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -10,6 +16,7 @@ export interface Client {
   is_active: boolean;
   share_token: string | null;
   acuity_calendar_ids: number[];
+  acuity_appointment_type_ids: number[];
   email_from_name: string | null;
   auto_send_enabled: boolean;
   created_at: string;

@@ -1,3 +1,5 @@
+import { getSetting } from "@/lib/settings";
+
 interface AcuityAppointment {
   id: number;
   firstName: string;
@@ -29,9 +31,9 @@ interface GetAppointmentsParams {
 
 const ACUITY_BASE = "https://acuityscheduling.com/api/v1";
 
-function getAuthHeader(): string {
-  const userId = process.env.ACUITY_USER_ID;
-  const apiKey = process.env.ACUITY_API_KEY;
+async function getAuthHeader(): Promise<string> {
+  const userId = await getSetting("ACUITY_USER_ID");
+  const apiKey = await getSetting("ACUITY_API_KEY");
   if (!userId || !apiKey) {
     throw new Error("ACUITY_USER_ID and ACUITY_API_KEY must be set");
   }
@@ -46,7 +48,7 @@ async function acuityFetch<T>(path: string, params?: Record<string, string>): Pr
 
   const res = await fetch(url.toString(), {
     headers: {
-      Authorization: getAuthHeader(),
+      Authorization: await getAuthHeader(),
       Accept: "application/json",
     },
   });
@@ -59,12 +61,17 @@ async function acuityFetch<T>(path: string, params?: Record<string, string>): Pr
   return res.json();
 }
 
-export function isAcuityEnabled(): boolean {
-  return process.env.ACUITY_ENABLED === "true";
+export async function isAcuityEnabled(): Promise<boolean> {
+  const val = await getSetting("ACUITY_ENABLED");
+  return val === "true";
 }
 
 export async function getCalendars(): Promise<AcuityCalendar[]> {
   return acuityFetch<AcuityCalendar[]>("/calendars");
+}
+
+export async function getAppointmentById(id: number): Promise<AcuityAppointment> {
+  return acuityFetch<AcuityAppointment>(`/appointments/${id}`);
 }
 
 export async function getAppointments({
