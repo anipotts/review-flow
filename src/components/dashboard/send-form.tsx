@@ -1,0 +1,381 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
+import Papa from "papaparse";
+import { Upload, FileText, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import type { Client, Location } from "@/lib/supabase/types";
+
+interface CsvRow {
+  name: string;
+  email: string;
+}
+
+export function SendForm({ clients }: { clients: Client[] }) {
+  const [mode, setMode] = useState<"single" | "bulk">("single");
+  const [clientId, setClientId] = useState(clients[0]?.id || "");
+  const [locationId, setLocationId] = useState("");
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [filteredRows, setFilteredRows] = useState<CsvRow[]>([]);
+  const [existingRows, setExistingRows] = useState<CsvRow[]>([]);
+  const [firstTimeOnly, setFirstTimeOnly] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ sent: 0, total: 0 });
+  const [bulkSending, setBulkSending] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fetch locations when client changes
+  useEffect(() => {
+    if (!clientId) return;
+    setLocationId("");
+    fetch(`/api/clients/${clientId}/locations`)
+      .then((r) => r.json())
+      .then((data) => setLocations(Array.isArray(data) ? data : []))
+      .catch(() => setLocations([]));
+  }, [clientId]);
+
+  // Filter CSV through first-time detection when toggled or rows change
+  useEffect(() => {
+    if (!firstTimeOnly || csvRows.length === 0 || !clientId) {
+      setFilteredRows(csvRows);
+      setExistingRows([]);
+      return;
+    }
+
+    setFilterLoading(true);
+    fetch("/api/patients/check-first-time", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientId,
+        patients: csvRows.map((r) => ({ name: r.name, email: r.email })),
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        setFilteredRows(data.firstTime || csvRows);
+        setExistingRows(data.existing || []);
+      })
+      .catch(() => {
+        setFilteredRows(csvRows);
+        setExistingRows([]);
+      })
+      .finally(() => setFilterLoading(false));
+  }, [csvRows, firstTimeOnly, clientId]);
+
+  async function handleSingleSend(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
+    const res = await fetch("/api/send-review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientId,
+        customerName,
+        customerEmail,
+        locationId: locationId || undefined,
+      }),
+    });
+
+    if (res.ok) {
+      toast.success(`Review request sent to ${customerEmail}`);
+      setCustomerName("");
+      setCustomerEmail("");
+    } else {
+      const data = await res.json();
+      toast.error(data.error || "Failed to send");
+    }
+
+    setLoading(false);
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse<CsvRow>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete(results) {
+        const rows = results.data
+          .filter((r) => r.name && r.email)
+          .slice(0, 500);
+        setCsvRows(rows);
+        if (rows.length === 0) {
+          toast.error("No valid rows. CSV needs 'name' and 'email' columns.");
+        }
+      },
+      error() {
+        toast.error("Failed to parse CSV");
+      },
+    });
+  }
+
+  async function handleBulkSend() {
+    const rowsToSend = firstTimeOnly ? filteredRows : csvRows;
+    if (!clientId || rowsToSend.length === 0) return;
+
+    setBulkSending(true);
+    setBulkProgress({ sent: 0, total: rowsToSend.length });
+
+    const BATCH_SIZE = 50;
+    let sent = 0;
+
+    for (let i = 0; i < rowsToSend.length; i += BATCH_SIZE) {
+      const batch = rowsToSend.slice(i, i + BATCH_SIZE);
+
+      await Promise.all(
+        batch.map(async (row) => {
+          try {
+            await fetch("/api/send-review", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                clientId,
+                customerName: row.name,
+                customerEmail: row.email,
+                locationId: locationId || undefined,
+                source: "csv",
+              }),
+            });
+          } catch {
+            // Continue on individual failures
+          }
+          sent++;
+          setBulkProgress({ sent, total: rowsToSend.length });
+        })
+      );
+
+      if (i + BATCH_SIZE < rowsToSend.length) {
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+
+    toast.success(`Sent ${sent} review requests`);
+    setCsvRows([]);
+    setFilteredRows([]);
+    setExistingRows([]);
+    setBulkSending(false);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  const rowsToSend = firstTimeOnly ? filteredRows : csvRows;
+
+  return (
+    <div className="max-w-lg">
+      {/* Mode toggle */}
+      <div className="inline-flex bg-gray-100 rounded-lg p-1 mb-6">
+        <button
+          onClick={() => setMode("single")}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[40px] ${
+            mode === "single"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          Single
+        </button>
+        <button
+          onClick={() => setMode("bulk")}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[40px] ${
+            mode === "bulk"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          Bulk CSV
+        </button>
+      </div>
+
+      <div className="space-y-5">
+        <Select
+          id="client"
+          label="Client"
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+        >
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </Select>
+
+        {/* Location selector */}
+        {locations.length > 0 && (
+          <Select
+            id="location"
+            label="Location (optional)"
+            value={locationId}
+            onChange={(e) => setLocationId(e.target.value)}
+          >
+            <option value="">All locations</option>
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>
+                {loc.name}
+              </option>
+            ))}
+          </Select>
+        )}
+
+        {mode === "single" ? (
+          <form onSubmit={handleSingleSend} className="space-y-5">
+            <Input
+              id="customerName"
+              label="Customer Name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="John Smith"
+              required
+            />
+            <Input
+              id="customerEmail"
+              label="Customer Email"
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="john@example.com"
+              required
+            />
+            <Button type="submit" loading={loading} className="w-full sm:w-auto">
+              Send Review Request
+            </Button>
+          </form>
+        ) : (
+          <div className="space-y-4">
+            {/* First-time only toggle */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={firstTimeOnly}
+                  onChange={(e) => setFirstTimeOnly(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-brand transition-colors" />
+                <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">
+                  First-time patients only
+                </span>
+              </div>
+            </label>
+
+            {/* Upload area */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Upload CSV
+              </label>
+              <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-colors min-h-[100px]">
+                {csvRows.length > 0 ? (
+                  <>
+                    <FileText className="h-6 w-6 text-brand" />
+                    <span className="text-sm font-medium text-gray-900">
+                      {csvRows.length} rows loaded
+                    </span>
+                    <span className="text-xs text-gray-500">Tap to replace</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-6 w-6 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-600">
+                      Choose a CSV file
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      Columns: name, email
+                    </span>
+                  </>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* First-time filter status */}
+            {csvRows.length > 0 && firstTimeOnly && (
+              <div className="text-sm">
+                {filterLoading ? (
+                  <span className="text-gray-500">Checking for first-time patients...</span>
+                ) : (
+                  <div className="flex gap-4">
+                    <span className="text-green-600 font-medium">
+                      {filteredRows.length} new
+                    </span>
+                    <span className="text-gray-400">
+                      {existingRows.length} existing (skipped)
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Preview */}
+            {rowsToSend.length > 0 && (
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="max-h-48 overflow-y-auto">
+                  <div className="divide-y divide-gray-50">
+                    {rowsToSend.slice(0, 20).map((row, i) => (
+                      <div key={i} className="px-4 py-2.5 flex items-center gap-3">
+                        <span className="text-xs text-gray-400 w-5 shrink-0">{i + 1}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-sm text-gray-900">{row.name}</span>
+                          <span className="text-xs text-gray-400 ml-2 hidden sm:inline">{row.email}</span>
+                          <p className="text-xs text-gray-400 sm:hidden truncate">{row.email}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {rowsToSend.length > 20 && (
+                  <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-t">
+                    + {rowsToSend.length - 20} more
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Progress bar */}
+            {bulkSending && (
+              <div>
+                <div className="flex justify-between text-sm text-gray-600 mb-1.5">
+                  <span>Sending...</span>
+                  <span>{bulkProgress.sent} / {bulkProgress.total}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-brand rounded-full h-2.5 transition-all"
+                    style={{
+                      width: `${(bulkProgress.sent / bulkProgress.total) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {rowsToSend.length > 0 && !bulkSending && (
+              <Button onClick={handleBulkSend} className="w-full sm:w-auto">
+                Send All ({rowsToSend.length} emails)
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReviewFlow
 
-## Getting Started
+A review collection system for DadaDigital. Send beautiful star-rating emails to customers after service — 5-star clicks route to Google Reviews, 1-4 stars route to the client's contact page.
 
-First, run the development server:
+## How It Works
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Send Email → Customer clicks star → 5★ → Google Reviews
+                                  → 1-4★ → Client contact page
+                                  → Click logged in analytics
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Developer Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Clone
+git clone https://github.com/anipotts/reviewflow.git
+cd reviewflow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Install
+npm install
 
-## Learn More
+# Environment variables
+cp .env.example .env.local
+# Fill in your Supabase + Resend credentials
 
-To learn more about Next.js, take a look at the following resources:
+# Run the database migration
+# Copy contents of supabase/migrations/001_initial_schema.sql
+# and run in your Supabase SQL Editor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Start dev server
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) — you'll be redirected to `/login`.
 
-## Deploy on Vercel
+## Setup Guide
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 1. Supabase
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to SQL Editor → paste and run `supabase/migrations/001_initial_schema.sql`
+3. Copy your project URL and anon key from Settings → API
+
+### 2. Resend
+
+1. Sign up at [resend.com](https://resend.com)
+2. Add and verify your domain (e.g. `dadadigital.com`)
+3. Create an API key
+
+### DNS for dadadigital.com
+
+Add these DNS records for Resend email sending:
+
+| Type  | Name                          | Value                          |
+|-------|-------------------------------|--------------------------------|
+| TXT   | `resend._domainkey`           | _(provided by Resend)_         |
+| TXT   | `@`                           | _(SPF record from Resend)_     |
+| CNAME | `em.dadadigital.com`          | _(provided by Resend)_         |
+
+### 3. Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+| `RESEND_API_KEY` | Resend API key |
+| `EMAIL_FROM` | Sender address (e.g. `ReviewFlow <feedback@dadadigital.com>`) |
+| `NEXT_PUBLIC_APP_URL` | App URL (e.g. `https://reviewflow.dadadigital.com`) |
+| `ADMIN_PASSWORD` | Dashboard login password |
+| `WEBHOOK_SECRET` | Secret for future webhook integrations |
+
+### 4. Deploy to Vercel
+
+1. Push to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add all environment variables
+4. Deploy
+
+### 5. First Review
+
+1. Log in at `/login` with your `ADMIN_PASSWORD`
+2. Add a client (you'll need a [Google Place ID](https://developers.google.com/maps/documentation/places/web-service/place-id))
+3. Go to "Send Reviews" → enter a customer name/email → send
+4. Check your inbox and click a star
+
+## Tech Stack
+
+- **Next.js 15** (App Router, Server Components)
+- **Supabase** (PostgreSQL database)
+- **Resend** + **React Email** (transactional emails)
+- **Tailwind CSS v4** (styling)
+- **TypeScript**
+
+## FAQ
+
+**How do I find a Google Place ID?**
+Use the [Place ID Finder](https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder).
+
+**Can I send bulk emails?**
+Yes — use the "Bulk CSV" mode on the Send page. Upload a CSV with `name` and `email` columns.
+
+**What happens if a customer clicks multiple stars?**
+Each click is logged as a separate event. The review request status shows the most recent click.
+
+**How is auth handled?**
+Simple password auth via an environment variable. A single HTTP-only cookie is set on login. There's no user registration — it's a single-admin system.
