@@ -242,11 +242,11 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
                   isConfigured ? "bg-green-500" : "bg-red-400"
                 }`}
               />
-              <label className="text-sm font-medium text-gray-900">
+              <label className="text-sm font-medium text-ink">
                 {field.label}
               </label>
             </div>
-            <p className="text-xs text-gray-500 mb-2">{field.helpText}</p>
+            <p className="text-xs text-ink-muted mb-2">{field.helpText}</p>
             <div className="relative">
               <input
                 type={field.sensitive && !isShown ? "password" : "text"}
@@ -259,7 +259,7 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
                     ? `Currently set (${info.value})`
                     : "Not configured"
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px] pr-10"
+                className="w-full px-3 py-2 border border-edge rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px] pr-10"
               />
               {field.sensitive && (
                 <button
@@ -270,7 +270,7 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
                       [field.key]: !prev[field.key],
                     }))
                   }
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-ink-muted hover:text-ink-secondary"
                 >
                   {isShown ? (
                     <EyeOff className="h-4 w-4" />
@@ -307,10 +307,10 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {integrationFields.map(renderField)}
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-edge-subtle">
             <Button
               onClick={() => saveSection("integrations", integrationFields)}
               loading={savingSection === "integrations"}
@@ -325,15 +325,15 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-gray-600" />
+            <Settings className="h-5 w-5 text-ink-secondary" />
             <CardTitle>General</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {generalFields.map(renderField)}
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-edge-subtle">
             <Button
               onClick={() => saveSection("general", generalFields)}
               loading={savingSection === "general"}
@@ -356,8 +356,8 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
           {/* Acuity toggle */}
           <div className="flex items-center justify-between py-3">
             <div>
-              <p className="text-sm font-medium text-gray-900">Acuity Integration</p>
-              <p className="text-xs text-gray-500">Auto-fetch appointments weekly</p>
+              <p className="text-sm font-medium text-ink">Acuity Integration</p>
+              <p className="text-xs text-ink-muted">Auto-fetch appointments weekly</p>
             </div>
             <label className="relative cursor-pointer">
               <input
@@ -366,39 +366,39 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
                 onChange={(e) => handleAcuityToggle(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-brand transition-colors" />
+              <div className="w-10 h-6 bg-surface-active rounded-full peer-checked:bg-brand transition-colors" />
               <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4" />
             </label>
           </div>
 
           {/* Schedule info */}
-          <div className="flex items-center gap-2 py-3 border-t border-gray-100">
-            <Clock className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-600">Schedule: Every Friday 1 PM ET</span>
+          <div className="flex items-center gap-2 py-3 border-t border-edge-subtle">
+            <Clock className="h-4 w-4 text-ink-muted" />
+            <span className="text-sm text-ink-secondary">Schedule: Every Friday 1 PM ET</span>
           </div>
 
           {/* Auto-send clients summary */}
-          <div className="flex items-center gap-2 py-3 border-t border-gray-100">
-            <Calendar className="h-4 w-4 text-gray-400" />
-            <span className="text-sm text-gray-600">
+          <div className="flex items-center gap-2 py-3 border-t border-edge-subtle">
+            <Calendar className="h-4 w-4 text-ink-muted" />
+            <span className="text-sm text-ink-secondary">
               {autoSendClients.length} client{autoSendClients.length !== 1 ? "s" : ""} with auto-send enabled
             </span>
           </div>
 
           {/* Per-client status */}
           {clients.length > 0 && (
-            <div className="mt-3 border-t border-gray-100 pt-3">
+            <div className="mt-3 border-t border-edge-subtle pt-3">
               <div className="space-y-2">
                 {clients.map((client) => (
                   <div key={client.id} className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-gray-700 truncate">{client.name}</span>
+                    <span className="text-sm text-ink-secondary truncate">{client.name}</span>
                     {client.auto_send_enabled ? (
                       <span className="flex items-center gap-1 text-xs font-medium text-green-600">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Auto-send
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-xs font-medium text-gray-400">
+                      <span className="flex items-center gap-1 text-xs font-medium text-ink-muted">
                         <XCircle className="h-3.5 w-3.5" />
                         Manual
                       </span>
@@ -410,8 +410,8 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
           )}
 
           {/* Run now */}
-          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-            <p className="text-sm text-gray-500">Manually trigger for all auto-send clients</p>
+          <div className="mt-4 pt-4 border-t border-edge-subtle flex items-center justify-between">
+            <p className="text-sm text-ink-muted">Manually trigger for all auto-send clients</p>
             <Button
               onClick={handleRunNow}
               loading={running}
@@ -424,24 +424,24 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
 
           {/* Recent batches */}
           {recentBatches.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-sm font-medium text-gray-700 mb-2">Recent Batches</p>
+            <div className="mt-4 pt-4 border-t border-edge-subtle">
+              <p className="text-sm font-medium text-ink-secondary mb-2">Recent Batches</p>
               <div className="space-y-2">
                 {recentBatches.slice(0, 5).map((batch) => (
                   <div key={batch.id} className="flex items-center justify-between text-sm">
                     <div className="min-w-0">
-                      <span className="text-gray-900">{batch.clients?.name}</span>
-                      <span className="text-gray-400 ml-2">
+                      <span className="text-ink">{batch.clients?.name}</span>
+                      <span className="text-ink-muted ml-2">
                         {batch.total_sent} sent
                       </span>
                     </div>
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         batch.status === "completed"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-emerald-500/10 text-emerald-400"
                           : batch.status === "failed"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
+                          ? "bg-red-500/10 text-red-400"
+                          : "bg-amber-500/10 text-amber-500"
                       }`}
                     >
                       {batch.status}
@@ -455,15 +455,15 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
       </Card>
 
       {/* Test Mode Card */}
-      <Card className="border-orange-200 bg-orange-50/30">
+      <Card className="border-amber-500/20 bg-amber-500/5">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <FlaskConical className="h-5 w-5 text-orange-500" />
+            <FlaskConical className="h-5 w-5 text-amber-500" />
             <CardTitle>Test Mode</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-ink-secondary mb-4">
             Send a real test email to yourself to see exactly what patients receive. Pick a client to preview their branding. Test emails won&apos;t appear in analytics.
           </p>
           <div className="space-y-4">

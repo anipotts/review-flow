@@ -11,7 +11,7 @@ export default async function SendPage() {
 
   return (
     <div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-ink mb-4 sm:mb-6">
         Send Reviews
       </h2>
       <SendForm clients={clients || []} />

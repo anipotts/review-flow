@@ -17,22 +17,22 @@ export function Input({
   return (
     <div>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor={id} className="block text-sm font-medium text-ink-secondary mb-1.5">
           {label}
         </label>
       )}
       <input
         id={id}
         className={cn(
-          "w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px]",
-          error ? "border-red-300" : "border-gray-300",
+          "w-full px-3 py-2.5 border rounded-lg text-sm bg-surface text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand min-h-[44px] transition-colors",
+          error ? "border-red-400" : "border-edge",
           className
         )}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
       {helperText && !error && (
-        <p className="mt-1 text-xs text-gray-500">{helperText}</p>
+        <p className="mt-1 text-xs text-ink-muted">{helperText}</p>
       )}
     </div>
   );

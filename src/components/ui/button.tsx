@@ -2,10 +2,11 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 const variants = {
-  primary: "bg-brand text-white hover:bg-brand-dark active:bg-blue-900",
-  secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100",
+  primary: "bg-brand text-[#0B0E14] font-semibold hover:bg-brand-dark active:bg-[#009DB0]",
+  secondary:
+    "bg-surface text-ink-secondary border border-edge hover:bg-surface-hover active:bg-surface-active",
   danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800",
-  ghost: "text-gray-600 hover:bg-gray-100 active:bg-gray-200",
+  ghost: "text-ink-secondary hover:bg-surface-hover active:bg-surface-active",
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

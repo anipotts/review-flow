@@ -19,7 +19,7 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-ink mb-4 sm:mb-6">
         Settings
       </h2>
       <SettingsView

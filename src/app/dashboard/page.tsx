@@ -62,7 +62,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-ink mb-4 sm:mb-6">
         Dashboard
       </h2>
 
@@ -71,12 +71,12 @@ export default async function DashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex items-center gap-3">
-              <div className="p-2 bg-brand-light rounded-lg shrink-0">
+              <div className="p-2 bg-brand/10 rounded-lg shrink-0">
                 <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-brand" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">{stat.label}</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xs sm:text-sm text-ink-muted truncate">{stat.label}</p>
+                <p className="text-lg sm:text-2xl font-bold text-ink">{stat.value}</p>
               </div>
             </CardContent>
           </Card>
@@ -86,34 +86,34 @@ export default async function DashboardPage() {
       {/* This Week Automation Summary */}
       {weekBatches.length > 0 && (
         <Card className="mb-6 sm:mb-8">
-          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
+          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-edge-subtle">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-purple-500" />
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-ink">
                 This Week&apos;s Automation
               </h3>
             </div>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-edge-subtle">
             {weekBatches.map((batch) => (
               <div key={batch.id} className="px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-ink truncate">
                     {(batch.clients as { name: string })?.name}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {batch.total_new} new patients \u00b7 {batch.total_sent} emails sent
+                  <p className="text-xs text-ink-muted">
+                    {batch.total_new} new patients &middot; {batch.total_sent} emails sent
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                  <Mail className="h-4 w-4 text-ink-muted" />
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       batch.status === "completed"
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-green-500/10 text-green-600"
                         : batch.status === "failed"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
+                        ? "bg-red-500/10 text-red-600"
+                        : "bg-yellow-500/10 text-yellow-600"
                     }`}
                   >
                     {batch.status}
@@ -127,8 +127,8 @@ export default async function DashboardPage() {
 
       {/* Recent Activity */}
       <Card>
-        <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+        <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-edge-subtle">
+          <h3 className="text-base sm:text-lg font-semibold text-ink">
             Recent Activity
           </h3>
         </div>
@@ -137,35 +137,35 @@ export default async function DashboardPage() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Customer</th>
-                <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Client</th>
-                <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Status</th>
-                <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Rating</th>
-                <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Date</th>
+              <tr className="border-b border-edge-subtle">
+                <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Customer</th>
+                <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Client</th>
+                <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Status</th>
+                <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Rating</th>
+                <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Date</th>
               </tr>
             </thead>
             <tbody>
               {recentRequests.map((req) => (
-                <tr key={req.id} className="border-b border-gray-50">
-                  <td className="px-6 py-3 text-sm text-gray-900">{req.customer_name}</td>
-                  <td className="px-6 py-3 text-sm text-gray-600">
+                <tr key={req.id} className="border-b border-edge-subtle hover:bg-surface-hover transition-colors">
+                  <td className="px-6 py-3 text-sm text-ink">{req.customer_name}</td>
+                  <td className="px-6 py-3 text-sm text-ink-secondary">
                     {(req.clients as { name: string })?.name}
                   </td>
                   <td className="px-6 py-3">
                     <Badge status={req.status as "pending" | "sent" | "opened" | "clicked"} />
                   </td>
                   <td className="px-6 py-3 text-sm text-yellow-500">
-                    {req.rating_clicked ? "\u2605".repeat(req.rating_clicked) : <span className="text-gray-300">{"\u2014"}</span>}
+                    {req.rating_clicked ? "\u2605".repeat(req.rating_clicked) : <span className="text-ink-faint">{"\u2014"}</span>}
                   </td>
-                  <td className="px-6 py-3 text-sm text-gray-500">
+                  <td className="px-6 py-3 text-sm text-ink-muted">
                     {new Date(req.created_at).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
               {recentRequests.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
                     No review requests yet
                   </td>
                 </tr>
@@ -175,13 +175,13 @@ export default async function DashboardPage() {
         </div>
 
         {/* Mobile stacked list */}
-        <div className="sm:hidden divide-y divide-gray-100">
+        <div className="sm:hidden divide-y divide-edge-subtle">
           {recentRequests.map((req) => (
             <div key={req.id} className="px-4 py-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{req.customer_name}</p>
-                <p className="text-xs text-gray-500 truncate">
-                  {(req.clients as { name: string })?.name} \u00b7 {new Date(req.created_at).toLocaleDateString()}
+                <p className="text-sm font-medium text-ink truncate">{req.customer_name}</p>
+                <p className="text-xs text-ink-muted truncate">
+                  {(req.clients as { name: string })?.name} &middot; {new Date(req.created_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -193,7 +193,7 @@ export default async function DashboardPage() {
             </div>
           ))}
           {recentRequests.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
+            <div className="px-4 py-8 text-center text-sm text-ink-muted">
               No review requests yet
             </div>
           )}

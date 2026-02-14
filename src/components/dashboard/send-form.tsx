@@ -231,13 +231,13 @@ export function SendForm({ clients }: { clients: Client[] }) {
   return (
     <div className="max-w-lg">
       {/* Mode toggle */}
-      <div className="inline-flex bg-gray-100 rounded-lg p-1 mb-6">
+      <div className="inline-flex bg-surface-hover rounded-lg p-1 mb-6">
         <button
           onClick={() => setMode("single")}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[40px] ${
             mode === "single"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-surface text-ink shadow-sm"
+              : "text-ink-secondary hover:text-ink"
           }`}
         >
           Single
@@ -246,8 +246,8 @@ export function SendForm({ clients }: { clients: Client[] }) {
           onClick={() => setMode("bulk")}
           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors min-h-[40px] ${
             mode === "bulk"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-surface text-ink shadow-sm"
+              : "text-ink-secondary hover:text-ink"
           }`}
         >
           Bulk CSV
@@ -319,12 +319,12 @@ export function SendForm({ clients }: { clients: Client[] }) {
                   onChange={(e) => setFirstTimeOnly(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-10 h-6 bg-gray-200 rounded-full peer-checked:bg-brand transition-colors" />
+                <div className="w-10 h-6 bg-surface-active rounded-full peer-checked:bg-brand transition-colors" />
                 <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4" />
               </div>
               <div className="flex items-center gap-1.5">
-                <Filter className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">
+                <Filter className="h-4 w-4 text-ink-muted" />
+                <span className="text-sm font-medium text-ink-secondary">
                   First-time patients only
                 </span>
               </div>
@@ -342,25 +342,25 @@ export function SendForm({ clients }: { clients: Client[] }) {
             {/* Upload area */}
             {!showMapper && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-ink-secondary mb-1.5">
                   Upload CSV
                 </label>
-                <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-colors min-h-[100px]">
+                <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-edge rounded-xl cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-colors min-h-[100px]">
                   {csvRows.length > 0 ? (
                     <>
                       <FileText className="h-6 w-6 text-brand" />
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-ink">
                         {csvRows.length} rows loaded
                       </span>
-                      <span className="text-xs text-gray-500">Tap to replace</span>
+                      <span className="text-xs text-ink-muted">Tap to replace</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="h-6 w-6 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-600">
+                      <Upload className="h-6 w-6 text-ink-muted" />
+                      <span className="text-sm font-medium text-ink-secondary">
                         Choose a CSV file
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-ink-muted">
                         CSV with name and email columns
                       </span>
                     </>
@@ -380,13 +380,13 @@ export function SendForm({ clients }: { clients: Client[] }) {
             {csvRows.length > 0 && firstTimeOnly && (
               <div className="text-sm">
                 {filterLoading ? (
-                  <span className="text-gray-500">Checking for first-time patients...</span>
+                  <span className="text-ink-muted">Checking for first-time patients...</span>
                 ) : (
                   <div className="flex gap-4">
                     <span className="text-green-600 font-medium">
                       {filteredRows.length} new
                     </span>
-                    <span className="text-gray-400">
+                    <span className="text-ink-muted">
                       {existingRows.length} existing (skipped)
                     </span>
                   </div>
@@ -396,23 +396,23 @@ export function SendForm({ clients }: { clients: Client[] }) {
 
             {/* Preview */}
             {rowsToSend.length > 0 && (
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div className="bg-surface rounded-lg border border-edge overflow-hidden">
                 <div className="max-h-48 overflow-y-auto">
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y divide-edge-subtle">
                     {rowsToSend.slice(0, 20).map((row, i) => (
                       <div key={i} className="px-4 py-2.5 flex items-center gap-3">
-                        <span className="text-xs text-gray-400 w-5 shrink-0">{i + 1}</span>
+                        <span className="text-xs text-ink-muted w-5 shrink-0">{i + 1}</span>
                         <div className="min-w-0 flex-1">
-                          <span className="text-sm text-gray-900">{row.name}</span>
-                          <span className="text-xs text-gray-400 ml-2 hidden sm:inline">{row.email}</span>
-                          <p className="text-xs text-gray-400 sm:hidden truncate">{row.email}</p>
+                          <span className="text-sm text-ink">{row.name}</span>
+                          <span className="text-xs text-ink-muted ml-2 hidden sm:inline">{row.email}</span>
+                          <p className="text-xs text-ink-muted sm:hidden truncate">{row.email}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
                 {rowsToSend.length > 20 && (
-                  <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-t">
+                  <div className="px-4 py-2 text-xs text-ink-muted bg-surface-secondary border-t">
                     + {rowsToSend.length - 20} more
                   </div>
                 )}
@@ -422,11 +422,11 @@ export function SendForm({ clients }: { clients: Client[] }) {
             {/* Progress bar */}
             {bulkSending && (
               <div>
-                <div className="flex justify-between text-sm text-gray-600 mb-1.5">
+                <div className="flex justify-between text-sm text-ink-secondary mb-1.5">
                   <span>Sending...</span>
                   <span>{bulkProgress.sent} / {bulkProgress.total}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="w-full bg-surface-active rounded-full h-2.5">
                   <div
                     className="bg-brand rounded-full h-2.5 transition-all"
                     style={{

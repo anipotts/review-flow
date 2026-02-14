@@ -15,12 +15,12 @@ export function CsvColumnMapper({ headers, onConfirm, onCancel }: CsvColumnMappe
   const [emailCol, setEmailCol] = useState("");
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-4">
+    <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-4 space-y-4">
       <div>
-        <p className="text-sm font-medium text-amber-800">
+        <p className="text-sm font-medium text-amber-500">
           Couldn&apos;t auto-detect columns
         </p>
-        <p className="text-xs text-amber-600 mt-0.5">
+        <p className="text-xs text-amber-400 mt-0.5">
           Please select which columns contain the name and email.
         </p>
       </div>
@@ -64,7 +64,7 @@ export function CsvColumnMapper({ headers, onConfirm, onCancel }: CsvColumnMappe
         </Button>
         <button
           onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+          className="px-4 py-2 text-sm text-ink-secondary hover:text-ink"
         >
           Cancel
         </button>

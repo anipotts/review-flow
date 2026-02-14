@@ -10,7 +10,7 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Clients</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-ink mb-4 sm:mb-6">Clients</h2>
       <ClientList clients={clients || []} />
     </div>
   );

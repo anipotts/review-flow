@@ -189,7 +189,7 @@ export function ClientForm({ client }: ClientFormProps) {
       <div>
         <label
           htmlFor="brand_color"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="block text-sm font-medium text-ink-secondary mb-1.5"
         >
           Brand Color
         </label>
@@ -199,9 +199,9 @@ export function ClientForm({ client }: ClientFormProps) {
             type="color"
             value={form.brand_color}
             onChange={(e) => setForm({ ...form, brand_color: e.target.value })}
-            className="h-11 w-14 rounded-lg border border-gray-300 cursor-pointer"
+            className="h-11 w-14 rounded-lg border border-edge cursor-pointer"
           />
-          <span className="text-sm text-gray-500 font-mono">{form.brand_color}</span>
+          <span className="text-sm text-ink-muted font-mono">{form.brand_color}</span>
         </div>
       </div>
 
@@ -217,7 +217,7 @@ export function ClientForm({ client }: ClientFormProps) {
       {/* Share Link (edit mode only) */}
       {isEdit && client?.share_token && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-ink-secondary mb-1.5">
             <span className="flex items-center gap-1.5">
               <Link2 className="h-4 w-4" />
               Share Link
@@ -228,17 +228,17 @@ export function ClientForm({ client }: ClientFormProps) {
               type="text"
               readOnly
               value={`${typeof window !== "undefined" ? window.location.origin : ""}/shared/${client.share_token}`}
-              className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-600 min-h-[44px]"
+              className="flex-1 px-3 py-2.5 border border-edge rounded-lg text-sm bg-surface-secondary text-ink-secondary min-h-[44px]"
             />
             <button
               type="button"
               onClick={copyShareLink}
-              className="p-2.5 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2.5 border border-edge rounded-lg hover:bg-surface-hover transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
-              <Copy className="h-4 w-4 text-gray-500" />
+              <Copy className="h-4 w-4 text-ink-muted" />
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-ink-muted mt-1">
             Share this link with the client to give them access to their dashboard
           </p>
         </div>
@@ -247,7 +247,7 @@ export function ClientForm({ client }: ClientFormProps) {
       {/* Locations section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+          <label className="text-sm font-medium text-ink-secondary flex items-center gap-1.5">
             <MapPin className="h-4 w-4" />
             Locations
           </label>
@@ -262,7 +262,7 @@ export function ClientForm({ client }: ClientFormProps) {
         </div>
 
         {locations.length === 0 ? (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-ink-muted">
             No locations added. Single-location clients use the main Google Place ID and Contact URL above.
           </p>
         ) : (
@@ -270,16 +270,16 @@ export function ClientForm({ client }: ClientFormProps) {
             {locations.map((loc, i) => (
               <div
                 key={i}
-                className="border border-gray-200 rounded-lg p-4 space-y-3 relative"
+                className="border border-edge rounded-lg p-4 space-y-3 relative"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">
+                  <span className="text-xs font-medium text-ink-muted">
                     Location {i + 1}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeLocation(i)}
-                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-1 text-ink-muted hover:text-red-500 transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

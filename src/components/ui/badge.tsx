@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 const variants = {
-  pending: "bg-yellow-100 text-yellow-800",
-  sent: "bg-blue-100 text-blue-800",
-  opened: "bg-purple-100 text-purple-800",
-  clicked: "bg-green-100 text-green-800",
+  pending: "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+  sent: "bg-brand/10 text-brand border border-brand/20",
+  opened: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+  clicked: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
 };
 
 interface BadgeProps {

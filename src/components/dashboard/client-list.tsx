@@ -58,13 +58,13 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4 sm:mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
           <input
             type="text"
             placeholder="Search clients..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px]"
+            className="w-full pl-10 pr-3 py-2.5 border border-edge rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px]"
           />
         </div>
         <Link href="/dashboard/clients/new" className="shrink-0">
@@ -77,22 +77,22 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="hidden md:block bg-surface rounded-xl border border-edge shadow-sm overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Name</th>
-              <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Slug</th>
-              <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Status</th>
-              <th className="text-left text-xs font-medium text-gray-500 px-6 py-3">Color</th>
-              <th className="text-right text-xs font-medium text-gray-500 px-6 py-3">Actions</th>
+            <tr className="border-b border-edge-subtle">
+              <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Name</th>
+              <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Slug</th>
+              <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Status</th>
+              <th className="text-left text-xs font-medium text-ink-muted px-6 py-3">Color</th>
+              <th className="text-right text-xs font-medium text-ink-muted px-6 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((client) => (
-              <tr key={client.id} className="border-b border-gray-50">
-                <td className="px-6 py-3 text-sm font-medium text-gray-900">{client.name}</td>
-                <td className="px-6 py-3 text-sm text-gray-500">{client.slug}</td>
+              <tr key={client.id} className="border-b border-edge-subtle">
+                <td className="px-6 py-3 text-sm font-medium text-ink">{client.name}</td>
+                <td className="px-6 py-3 text-sm text-ink-muted">{client.slug}</td>
                 <td className="px-6 py-3">
                   <button onClick={() => toggleActive(client)} className="min-h-[32px]">
                     <Badge status={client.is_active ? "sent" : "pending"} />
@@ -100,7 +100,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
                 </td>
                 <td className="px-6 py-3">
                   <div
-                    className="w-6 h-6 rounded-full border border-gray-200"
+                    className="w-6 h-6 rounded-full border border-edge"
                     style={{ backgroundColor: client.brand_color }}
                   />
                 </td>
@@ -108,14 +108,14 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
                   <div className="flex items-center justify-end gap-1">
                     <button
                       onClick={() => router.push(`/dashboard/clients/${client.id}`)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg min-w-[36px] min-h-[36px] flex items-center justify-center"
+                      className="p-2 text-ink-muted hover:text-ink-secondary hover:bg-surface-hover rounded-lg min-w-[36px] min-h-[36px] flex items-center justify-center"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(client.id)}
                       disabled={deleting === client.id}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                      className="p-2 text-ink-muted hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 min-w-[36px] min-h-[36px] flex items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -125,7 +125,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
                   {search ? "No clients match your search" : "No clients yet"}
                 </td>
               </tr>
@@ -139,7 +139,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
         {filtered.map((client) => (
           <div
             key={client.id}
-            className="bg-white rounded-xl border border-gray-200 shadow-sm p-4"
+            className="bg-surface rounded-xl border border-edge shadow-sm p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
@@ -148,11 +148,11 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
                     className="w-3 h-3 rounded-full shrink-0"
                     style={{ backgroundColor: client.brand_color }}
                   />
-                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                  <h3 className="text-sm font-medium text-ink truncate">
                     {client.name}
                   </h3>
                 </div>
-                <p className="text-xs text-gray-500">{client.slug}</p>
+                <p className="text-xs text-ink-muted">{client.slug}</p>
               </div>
               <button
                 onClick={() => toggleActive(client)}
@@ -161,15 +161,15 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
                 <Badge status={client.is_active ? "sent" : "pending"} />
               </button>
             </div>
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-edge-subtle">
               <button
                 onClick={() => router.push(`/dashboard/clients/${client.id}`)}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 rounded-lg min-h-[44px] transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-ink-secondary hover:bg-surface-hover active:bg-surface-active rounded-lg min-h-[44px] transition-colors"
               >
                 <Pencil className="h-3.5 w-3.5" />
                 Edit
               </button>
-              <div className="w-px h-5 bg-gray-200" />
+              <div className="w-px h-5 bg-surface-active" />
               <button
                 onClick={() => handleDelete(client.id)}
                 disabled={deleting === client.id}
@@ -182,7 +182,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-sm text-gray-500">
+          <div className="bg-surface rounded-xl border border-edge p-8 text-center text-sm text-ink-muted">
             {search ? "No clients match your search" : "No clients yet"}
           </div>
         )}

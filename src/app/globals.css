@@ -1,9 +1,75 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic color tokens — auto-switch between light and dark */
+:root {
+  --surface: #FFFFFF;
+  --surface-secondary: #F8FAFC;
+  --surface-elevated: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --surface-active: #E2E8F0;
+  --edge: #E2E8F0;
+  --edge-subtle: #F1F5F9;
+  --ink: #0F172A;
+  --ink-secondary: #475569;
+  --ink-muted: #94A3B8;
+  --ink-faint: #CBD5E1;
+  --sidebar-bg: #0F172A;
+  --sidebar-hover: #1E293B;
+  --sidebar-text: #94A3B8;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-border: #1E293B;
+}
+
+.dark {
+  --surface: #111827;
+  --surface-secondary: #0B0E14;
+  --surface-elevated: #1A1F2E;
+  --surface-hover: #1F2937;
+  --surface-active: #374151;
+  --edge: #1F2937;
+  --edge-subtle: #161B26;
+  --ink: #F1F5F9;
+  --ink-secondary: #94A3B8;
+  --ink-muted: #64748B;
+  --ink-faint: #374151;
+  --sidebar-bg: #0A0D13;
+  --sidebar-hover: #141820;
+  --sidebar-text: #64748B;
+  --sidebar-text-active: #E2E8F0;
+  --sidebar-border: #1A1F2E;
+}
+
 @theme {
-  --color-brand: #2563EB;
-  --color-brand-dark: #1D4ED8;
-  --color-brand-light: #DBEAFE;
+  --color-brand: #00E5FF;
+  --color-brand-dark: #00BCD4;
+  --color-brand-light: rgba(0, 229, 255, 0.10);
+
+  /* Surfaces */
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+
+  /* Borders */
+  --color-edge: var(--edge);
+  --color-edge-subtle: var(--edge-subtle);
+
+  /* Text */
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar-bg);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-text-active: var(--sidebar-text-active);
+  --color-sidebar-border: var(--sidebar-border);
+
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -20,4 +86,23 @@ html, body {
 /* Lock body scroll when mobile nav is open */
 body.nav-open {
   overflow: hidden;
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2A2D3A;
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3A3D4A;
 }

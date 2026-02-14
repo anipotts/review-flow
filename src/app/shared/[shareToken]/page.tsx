@@ -59,18 +59,18 @@ export default function SharedDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      <div className="min-h-screen bg-surface-secondary flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-secondary flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Dashboard Not Found</h1>
-          <p className="text-gray-500">This link may be invalid or expired.</p>
+          <h1 className="text-xl font-bold text-ink mb-2">Dashboard Not Found</h1>
+          <p className="text-ink-muted">This link may be invalid or expired.</p>
         </div>
       </div>
     );
@@ -80,10 +80,10 @@ export default function SharedDashboardPage() {
   const maxDist = Math.max(...distribution, 1);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-secondary">
       {/* Header */}
       <header
-        className="bg-white border-b-4"
+        className="bg-surface border-b-4"
         style={{ borderBottomColor: client.brandColor }}
       >
         <div className="max-w-3xl mx-auto px-4 py-6 sm:px-6">
@@ -103,7 +103,7 @@ export default function SharedDashboardPage() {
               </h1>
             )}
           </div>
-          <p className="text-sm text-gray-500 mt-1">Review Performance Dashboard</p>
+          <p className="text-sm text-ink-muted mt-1">Review Performance Dashboard</p>
         </div>
       </header>
 
@@ -111,21 +111,21 @@ export default function SharedDashboardPage() {
         {/* Date range */}
         <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">From</label>
+            <label className="block text-xs font-medium text-ink-muted mb-1">From</label>
             <input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[44px]"
+              className="px-3 py-2 border border-edge rounded-lg text-sm bg-surface text-ink min-h-[44px]"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">To</label>
+            <label className="block text-xs font-medium text-ink-muted mb-1">To</label>
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm min-h-[44px]"
+              className="px-3 py-2 border border-edge rounded-lg text-sm bg-surface text-ink min-h-[44px]"
             />
           </div>
         </div>
@@ -140,17 +140,17 @@ export default function SharedDashboardPage() {
           ].map((stat) => (
             <div
               key={stat.label}
-              className="bg-white rounded-xl border border-gray-200 p-4"
+              className="bg-surface rounded-xl border border-edge p-4"
             >
-              <p className="text-xs text-gray-500">{stat.label}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <p className="text-xs text-ink-muted">{stat.label}</p>
+              <p className="text-2xl font-bold text-ink mt-1">{stat.value}</p>
             </div>
           ))}
         </div>
 
         {/* Rating distribution */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">
+        <div className="bg-surface rounded-xl border border-edge p-4 sm:p-6">
+          <h3 className="text-sm font-semibold text-ink mb-4">
             Rating Distribution
           </h3>
           <div className="space-y-2.5">
@@ -158,10 +158,10 @@ export default function SharedDashboardPage() {
               const count = distribution[rating - 1];
               return (
                 <div key={rating} className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-600 w-12 shrink-0">
+                  <span className="text-sm font-medium text-ink-secondary w-12 shrink-0">
                     {rating} {"\u2605"}
                   </span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+                  <div className="flex-1 bg-surface-hover rounded-full h-4 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -175,7 +175,7 @@ export default function SharedDashboardPage() {
                       }}
                     />
                   </div>
-                  <span className="text-sm text-gray-500 w-8 text-right shrink-0">
+                  <span className="text-sm text-ink-muted w-8 text-right shrink-0">
                     {count}
                   </span>
                 </div>
@@ -185,16 +185,16 @@ export default function SharedDashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 sm:px-6 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900">Recent Activity</h3>
+        <div className="bg-surface rounded-xl border border-edge overflow-hidden">
+          <div className="px-4 py-3 sm:px-6 border-b border-edge-subtle">
+            <h3 className="text-sm font-semibold text-ink">Recent Activity</h3>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-edge-subtle">
             {recentActivity.map((item, i) => (
               <div key={i} className="px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-gray-900">{item.firstName}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm text-ink">{item.firstName}</p>
+                  <p className="text-xs text-ink-muted">
                     {new Date(item.date).toLocaleDateString()}
                   </p>
                 </div>
@@ -207,12 +207,12 @@ export default function SharedDashboardPage() {
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
                       item.status === "clicked"
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                         : item.status === "opened"
-                        ? "bg-purple-100 text-purple-800"
+                        ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                         : item.status === "sent"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-yellow-100 text-yellow-800"
+                        ? "bg-brand/10 text-brand border border-brand/20"
+                        : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                     }`}
                   >
                     {item.status}
@@ -221,7 +221,7 @@ export default function SharedDashboardPage() {
               </div>
             ))}
             {recentActivity.length === 0 && (
-              <div className="px-6 py-8 text-center text-sm text-gray-500">
+              <div className="px-6 py-8 text-center text-sm text-ink-muted">
                 No activity yet
               </div>
             )}
@@ -230,9 +230,9 @@ export default function SharedDashboardPage() {
 
         {/* Footer */}
         <div className="text-center py-4">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-ink-muted">
             Powered by{" "}
-            <Link href="https://dadadigital.com" className="text-gray-500 hover:text-gray-700">
+            <Link href="https://dadadigital.com" className="text-ink-secondary hover:text-brand transition-colors">
               DadaDigital
             </Link>
           </p>
