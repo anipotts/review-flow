@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
   if (!clientId || !customerName || !customerEmail) {
     return NextResponse.json(
-      { error: "clientId, customerName, and customerEmail are required" },
+      { error: "Missing required fields: client, customer name, and customer email." },
       { status: 400 }
     );
   }
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     .single();
 
   if (clientError || !client) {
-    return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    return NextResponse.json({ error: "Client not found. It may have been deleted." }, { status: 404 });
   }
 
   // Generate token and create review request
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   if (insertError || !reviewRequest) {
     return NextResponse.json(
-      { error: "Failed to create review request" },
+      { error: "Failed to create review request. Please try again." },
       { status: 500 }
     );
   }
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 
   if (emailError) {
     return NextResponse.json(
-      { error: "Failed to send email" },
+      { error: "Failed to send email. Check that the Resend API key is configured in Settings." },
       { status: 500 }
     );
   }

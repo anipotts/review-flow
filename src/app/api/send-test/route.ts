@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const { testEmail, clientId } = await request.json();
 
   if (!testEmail) {
-    return NextResponse.json({ error: "testEmail is required" }, { status: 400 });
+    return NextResponse.json({ error: "Please enter an email address to send the test to." }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   }
 
   if (!client) {
-    return NextResponse.json({ error: "No active client found" }, { status: 404 });
+    return NextResponse.json({ error: "No active clients found. Create a client before sending a test." }, { status: 404 });
   }
 
   const token = generateToken();
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError || !reviewRequest) {
-    return NextResponse.json({ error: "Failed to create review request" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create test review request. Please try again." }, { status: 500 });
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -75,7 +75,10 @@ export async function POST(request: Request) {
   });
 
   if (emailError) {
-    return NextResponse.json({ error: "Failed to send email: " + emailError.message }, { status: 500 });
+    const hint = emailError.message?.toLowerCase().includes("api key")
+      ? "Check your Resend API key in Settings."
+      : "Verify your email configuration in Settings (API key, sender domain, etc.).";
+    return NextResponse.json({ error: `Failed to send test email: ${emailError.message}. ${hint}` }, { status: 500 });
   }
 
   await supabase

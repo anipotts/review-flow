@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       router.push("/dashboard");
     } catch {
-      setError("Something went wrong");
+      setError("Something went wrong — this is usually a connection issue. Check your internet and try again.");
     } finally {
       setLoading(false);
     }

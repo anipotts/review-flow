@@ -166,7 +166,7 @@ export default async function DashboardPage() {
               {recentRequests.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
-                    No review requests yet
+                    No review requests yet. Go to &quot;Send Reviews&quot; to send your first one.
                   </td>
                 </tr>
               )}

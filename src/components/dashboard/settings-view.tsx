@@ -125,7 +125,7 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
       // Set acuity toggle
       setAcuityToggle(data.ACUITY_ENABLED?.value === "true");
     } catch {
-      toast.error("Failed to load settings");
+      toast.error("Failed to load settings. Check your connection and refresh the page.");
     }
     setLoading(false);
   }
@@ -142,7 +142,7 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
     }
 
     if (Object.keys(toSave).length === 0) {
-      toast.error("No changes to save");
+      toast.info("No changes to save — enter a new value in at least one field.");
       setSavingSection(null);
       return;
     }
@@ -158,10 +158,10 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
         toast.success("Settings saved");
         await fetchSettings();
       } else {
-        toast.error("Failed to save settings");
+        toast.error("Failed to save settings. The server returned an error — try again.");
       }
     } catch {
-      toast.error("Failed to save settings");
+      toast.error("Failed to save settings. Check your internet connection.");
     }
     setSavingSection(null);
   }
@@ -169,14 +169,15 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
   async function handleAcuityToggle(enabled: boolean) {
     setAcuityToggle(enabled);
     try {
-      await fetch("/api/settings", {
+      const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ settings: { ACUITY_ENABLED: String(enabled) } }),
       });
+      if (!res.ok) throw new Error("Server error");
       toast.success(enabled ? "Acuity enabled" : "Acuity disabled");
     } catch {
-      toast.error("Failed to update");
+      toast.error("Failed to toggle Acuity integration. Check your connection and try again.");
       setAcuityToggle(!enabled);
     }
   }
@@ -195,17 +196,17 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
             : data.message || "Done"
         );
       } else {
-        toast.error(data.error || "Failed to run");
+        toast.error(data.error || "Automation failed — check that Acuity credentials and client calendars are configured.");
       }
     } catch {
-      toast.error("Failed to trigger automation");
+      toast.error("Could not reach the server. Check your internet connection and try again.");
     }
     setRunning(false);
   }
 
   async function handleSendTest() {
     if (!testEmail) {
-      toast.error("Enter a test email address");
+      toast.error("Please enter an email address to send the test to.");
       return;
     }
     setSendingTest(true);
@@ -219,10 +220,10 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
       if (res.ok) {
         toast.success(`Test email sent to ${testEmail}`);
       } else {
-        toast.error(data.error || "Failed to send test email");
+        toast.error(data.error || "Failed to send test email. Make sure your Resend API key is configured in Integrations above.");
       }
     } catch {
-      toast.error("Failed to send test email");
+      toast.error("Could not send test email. Check your internet connection.");
     }
     setSendingTest(false);
   }
@@ -256,8 +257,8 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
                 }
                 placeholder={
                   isConfigured
-                    ? `Currently set (${info.value})`
-                    : "Not configured"
+                    ? `Currently set (${info.value}) — leave blank to keep`
+                    : "Not configured — enter a value"
                 }
                 className="w-full px-3 py-2 border border-edge rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent min-h-[44px] pr-10"
               />
@@ -288,8 +289,9 @@ export function SettingsView({ clients, recentBatches }: SettingsViewProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
         <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-ink-muted">Loading settings...</p>
       </div>
     );
   }

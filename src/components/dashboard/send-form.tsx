@@ -47,7 +47,10 @@ export function SendForm({ clients }: { clients: Client[] }) {
     fetch(`/api/clients/${clientId}/locations`)
       .then((r) => r.json())
       .then((data) => setLocations(Array.isArray(data) ? data : []))
-      .catch(() => setLocations([]));
+      .catch(() => {
+        setLocations([]);
+        toast.error("Failed to load locations for this client.");
+      });
   }, [clientId]);
 
   // Filter CSV through first-time detection when toggled or rows change
@@ -91,7 +94,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
     setRawData([]);
 
     if (rows.length === 0) {
-      toast.error("No valid rows found after mapping.");
+      toast.error("No valid rows found. Each row needs at least a name and email address.");
     } else {
       toast.success(`${rows.length} rows loaded`);
     }
@@ -118,7 +121,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
       setCustomerEmail("");
     } else {
       const data = await res.json();
-      toast.error(data.error || "Failed to send");
+      toast.error(data.error || `Failed to send review request to ${customerEmail}. Check your Resend API key in Settings.`);
     }
 
     setLoading(false);
@@ -136,7 +139,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
         const data = results.data;
 
         if (headers.length === 0 || data.length === 0) {
-          toast.error("CSV appears to be empty.");
+          toast.error("CSV appears to be empty. Make sure the file has a header row and at least one data row.");
           return;
         }
 
@@ -155,7 +158,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
         }
       },
       error() {
-        toast.error("Failed to parse CSV");
+        toast.error("Failed to parse CSV. Make sure it's a valid .csv file with comma-separated values.");
       },
     });
   }
@@ -186,7 +189,8 @@ export function SendForm({ clients }: { clients: Client[] }) {
     setBulkProgress({ sent: 0, total: rowsToSend.length });
 
     const BATCH_SIZE = 50;
-    let sent = 0;
+    let attempted = 0;
+    let failed = 0;
 
     for (let i = 0; i < rowsToSend.length; i += BATCH_SIZE) {
       const batch = rowsToSend.slice(i, i + BATCH_SIZE);
@@ -194,7 +198,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
       await Promise.all(
         batch.map(async (row) => {
           try {
-            await fetch("/api/send-review", {
+            const res = await fetch("/api/send-review", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -205,11 +209,12 @@ export function SendForm({ clients }: { clients: Client[] }) {
                 source: "csv",
               }),
             });
+            if (!res.ok) failed++;
           } catch {
-            // Continue on individual failures
+            failed++;
           }
-          sent++;
-          setBulkProgress({ sent, total: rowsToSend.length });
+          attempted++;
+          setBulkProgress({ sent: attempted, total: rowsToSend.length });
         })
       );
 
@@ -218,7 +223,12 @@ export function SendForm({ clients }: { clients: Client[] }) {
       }
     }
 
-    toast.success(`Sent ${sent} review requests`);
+    const succeeded = attempted - failed;
+    if (failed > 0) {
+      toast.warning(`${succeeded} of ${attempted} review requests sent. ${failed} failed — check your Resend API key.`);
+    } else {
+      toast.success(`All ${attempted} review requests sent successfully.`);
+    }
     setCsvRows([]);
     setFilteredRows([]);
     setExistingRows([]);
@@ -361,7 +371,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
                         Choose a CSV file
                       </span>
                       <span className="text-xs text-ink-muted">
-                        CSV with name and email columns
+                        CSV with name and email columns (e.g. &quot;name&quot;, &quot;email&quot; or &quot;first_name&quot;, &quot;last_name&quot;, &quot;email&quot;)
                       </span>
                     </>
                   )}
@@ -423,7 +433,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
             {bulkSending && (
               <div>
                 <div className="flex justify-between text-sm text-ink-secondary mb-1.5">
-                  <span>Sending...</span>
+                  <span>Sending review requests...</span>
                   <span>{bulkProgress.sent} / {bulkProgress.total}</span>
                 </div>
                 <div className="w-full bg-surface-active rounded-full h-2.5">

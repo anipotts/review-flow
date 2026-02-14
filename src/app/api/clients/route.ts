@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   if (!name || !slug || !google_place_id || !website_url) {
     return NextResponse.json(
-      { error: "name, slug, google_place_id, and website_url are required" },
+      { error: "Missing required fields: Client Name, Slug, Google Place ID, and Website URL." },
       { status: 400 }
     );
   }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     .single();
 
   if (existing) {
-    return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+    return NextResponse.json({ error: "This slug is already taken. Choose a different URL identifier." }, { status: 409 });
   }
 
   // Auto-generate share token

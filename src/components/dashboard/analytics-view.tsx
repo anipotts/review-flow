@@ -109,8 +109,9 @@ export function AnalyticsView({ clients }: { clients: Client[] }) {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex flex-col items-center justify-center py-12 gap-3">
           <Spinner className="h-8 w-8" />
+          <p className="text-sm text-ink-muted">Loading analytics...</p>
         </div>
       ) : data ? (
         <>
@@ -238,7 +239,7 @@ export function AnalyticsView({ clients }: { clients: Client[] }) {
                   {data.clicks.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
-                        No click events yet
+                        No click events yet. Clicks are recorded when patients tap a star rating in their email.
                       </td>
                     </tr>
                   )}

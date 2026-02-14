@@ -59,8 +59,9 @@ export default function SharedDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface-secondary flex items-center justify-center">
+      <div className="min-h-screen bg-surface-secondary flex flex-col items-center justify-center gap-3">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
+        <p className="text-sm text-ink-muted">Loading dashboard...</p>
       </div>
     );
   }
@@ -70,7 +71,7 @@ export default function SharedDashboardPage() {
       <div className="min-h-screen bg-surface-secondary flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-xl font-bold text-ink mb-2">Dashboard Not Found</h1>
-          <p className="text-ink-muted">This link may be invalid or expired.</p>
+          <p className="text-ink-muted">This share link is invalid or the client no longer exists.<br />Contact your account manager for an updated link.</p>
         </div>
       </div>
     );
@@ -222,7 +223,7 @@ export default function SharedDashboardPage() {
             ))}
             {recentActivity.length === 0 && (
               <div className="px-6 py-8 text-center text-sm text-ink-muted">
-                No activity yet
+                No activity yet for this date range. Try expanding the date range above.
               </div>
             )}
           </div>

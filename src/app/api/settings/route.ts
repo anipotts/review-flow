@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const { settings } = body as { settings: Record<string, string> };
 
   if (!settings || typeof settings !== "object") {
-    return NextResponse.json({ error: "settings object required" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid settings data. Please try again." }, { status: 400 });
   }
 
   const supabase = getSupabase();

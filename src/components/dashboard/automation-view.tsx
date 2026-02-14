@@ -42,10 +42,10 @@ export function AutomationView({ clients, recentBatches }: AutomationViewProps) 
             : data.message || "Done"
         );
       } else {
-        toast.error(data.error || "Failed to run");
+        toast.error(data.error || "Automation failed — check that Acuity credentials and client calendars are configured in Settings.");
       }
     } catch {
-      toast.error("Failed to trigger automation");
+      toast.error("Could not reach the server. Check your internet connection and try again.");
     }
     setRunning(false);
   }
@@ -158,7 +158,7 @@ export function AutomationView({ clients, recentBatches }: AutomationViewProps) 
           ))}
           {clients.length === 0 && (
             <div className="px-6 py-8 text-center text-sm text-ink-muted">
-              No active clients
+              No clients yet. Add a client from the Clients page to configure automation.
             </div>
           )}
         </div>
@@ -211,7 +211,7 @@ export function AutomationView({ clients, recentBatches }: AutomationViewProps) 
               {recentBatches.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
-                    No batches yet
+                    No automated batches yet. Enable auto-send on a client and run automation to see results here.
                   </td>
                 </tr>
               )}
@@ -246,7 +246,7 @@ export function AutomationView({ clients, recentBatches }: AutomationViewProps) 
           ))}
           {recentBatches.length === 0 && (
             <div className="px-4 py-8 text-center text-sm text-ink-muted">
-              No batches yet
+              No automated batches yet. Enable auto-send on a client and run automation to see results here.
             </div>
           )}
         </div>

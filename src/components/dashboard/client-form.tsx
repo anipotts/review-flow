@@ -59,7 +59,9 @@ export function ClientForm({ client }: ClientFormProps) {
             );
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          toast.error("Failed to load locations for this client.");
+        });
     }
   }, [isEdit, client?.id]);
 
@@ -124,12 +126,12 @@ export function ClientForm({ client }: ClientFormProps) {
         });
       }
 
-      toast.success(isEdit ? "Client updated" : "Client created");
+      toast.success(isEdit ? `"${form.name}" updated` : `"${form.name}" created`);
       router.push("/dashboard/clients");
       router.refresh();
     } else {
       const data = await res.json();
-      toast.error(data.error || "Something went wrong");
+      toast.error(data.error || "Failed to save client. Check all required fields and try again.");
     }
 
     setLoading(false);

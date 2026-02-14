@@ -60,7 +60,7 @@ export function CsvColumnMapper({ headers, onConfirm, onCancel }: CsvColumnMappe
           }}
           disabled={!nameCol || !emailCol}
         >
-          Confirm
+          Confirm Mapping
         </Button>
         <button
           onClick={onCancel}

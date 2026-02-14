@@ -19,17 +19,22 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this client?")) return;
+  async function handleDelete(client: Client) {
+    if (
+      !confirm(
+        `Delete "${client.name}"? This will permanently remove all their review requests, analytics, and patient data.`
+      )
+    )
+      return;
 
-    setDeleting(id);
-    const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+    setDeleting(client.id);
+    const res = await fetch(`/api/clients/${client.id}`, { method: "DELETE" });
 
     if (res.ok) {
-      setClients((prev) => prev.filter((c) => c.id !== id));
-      toast.success("Client deleted");
+      setClients((prev) => prev.filter((c) => c.id !== client.id));
+      toast.success(`"${client.name}" deleted`);
     } else {
-      toast.error("Failed to delete client");
+      toast.error(`Failed to delete "${client.name}". The server returned an error — try again.`);
     }
     setDeleting(null);
   }
@@ -47,9 +52,9 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
           c.id === client.id ? { ...c, is_active: !c.is_active } : c
         )
       );
-      toast.success(`Client ${client.is_active ? "deactivated" : "activated"}`);
+      toast.success(`"${client.name}" ${client.is_active ? "deactivated" : "activated"}`);
     } else {
-      toast.error("Failed to update client");
+      toast.error(`Failed to ${client.is_active ? "deactivate" : "activate"} "${client.name}". Try again.`);
     }
   }
 
@@ -113,7 +118,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(client.id)}
+                      onClick={() => handleDelete(client)}
                       disabled={deleting === client.id}
                       className="p-2 text-ink-muted hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 min-w-[36px] min-h-[36px] flex items-center justify-center"
                     >
@@ -126,7 +131,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-sm text-ink-muted">
-                  {search ? "No clients match your search" : "No clients yet"}
+                  {search ? `No clients match "${search}"` : "No clients yet — click \"Add Client\" above to get started."}
                 </td>
               </tr>
             )}
@@ -171,7 +176,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
               </button>
               <div className="w-px h-5 bg-surface-active" />
               <button
-                onClick={() => handleDelete(client.id)}
+                onClick={() => handleDelete(client)}
                 disabled={deleting === client.id}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg disabled:opacity-50 min-h-[44px] transition-colors"
               >
@@ -183,7 +188,7 @@ export function ClientList({ clients: initial }: { clients: Client[] }) {
         ))}
         {filtered.length === 0 && (
           <div className="bg-surface rounded-xl border border-edge p-8 text-center text-sm text-ink-muted">
-            {search ? "No clients match your search" : "No clients yet"}
+            {search ? `No clients match "${search}"` : "No clients yet — click \"Add Client\" above to get started."}
           </div>
         )}
       </div>
