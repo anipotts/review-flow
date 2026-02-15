@@ -150,6 +150,7 @@ export async function GET(request: Request) {
           token,
           status: "pending",
           location_id: locationId,
+          provider_id: null,
           batch_id: batch?.id || null,
           source: "acuity_auto",
         })

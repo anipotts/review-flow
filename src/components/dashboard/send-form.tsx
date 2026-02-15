@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/select";
 import { CsvColumnMapper } from "@/components/dashboard/csv-column-mapper";
 import { detectColumns, mapRow } from "@/lib/csv-columns";
 import type { ColumnMapping } from "@/lib/csv-columns";
-import type { Client, Location } from "@/lib/supabase/types";
+import type { Client, Location, Provider } from "@/lib/supabase/types";
 
 interface CsvRow {
   name: string;
@@ -22,6 +22,8 @@ export function SendForm({ clients }: { clients: Client[] }) {
   const [clientId, setClientId] = useState(clients[0]?.id || "");
   const [locationId, setLocationId] = useState("");
   const [locations, setLocations] = useState<Location[]>([]);
+  const [providerId, setProviderId] = useState("");
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,10 +42,11 @@ export function SendForm({ clients }: { clients: Client[] }) {
   const [rawData, setRawData] = useState<Record<string, string>[]>([]);
   const [showMapper, setShowMapper] = useState(false);
 
-  // Fetch locations when client changes
+  // Fetch locations and providers when client changes
   useEffect(() => {
     if (!clientId) return;
     setLocationId("");
+    setProviderId("");
     fetch(`/api/clients/${clientId}/locations`)
       .then((r) => r.json())
       .then((data) => setLocations(Array.isArray(data) ? data : []))
@@ -51,6 +54,10 @@ export function SendForm({ clients }: { clients: Client[] }) {
         setLocations([]);
         toast.error("Failed to load locations for this client.");
       });
+    fetch(`/api/clients/${clientId}/providers`)
+      .then((r) => r.json())
+      .then((data) => setProviders(Array.isArray(data) ? data : []))
+      .catch(() => setProviders([]));
   }, [clientId]);
 
   // Filter CSV through first-time detection when toggled or rows change
@@ -112,6 +119,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
         customerName,
         customerEmail,
         locationId: locationId || undefined,
+        providerId: providerId || undefined,
       }),
     });
 
@@ -206,6 +214,7 @@ export function SendForm({ clients }: { clients: Client[] }) {
                 customerName: row.name,
                 customerEmail: row.email,
                 locationId: locationId || undefined,
+                providerId: providerId || undefined,
                 source: "csv",
               }),
             });
@@ -290,6 +299,23 @@ export function SendForm({ clients }: { clients: Client[] }) {
             {locations.map((loc) => (
               <option key={loc.id} value={loc.id}>
                 {loc.name}
+              </option>
+            ))}
+          </Select>
+        )}
+
+        {/* Provider selector */}
+        {providers.length > 0 && (
+          <Select
+            id="provider"
+            label="Provider (optional)"
+            value={providerId}
+            onChange={(e) => setProviderId(e.target.value)}
+          >
+            <option value="">No specific provider</option>
+            {providers.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.display_name}
               </option>
             ))}
           </Select>

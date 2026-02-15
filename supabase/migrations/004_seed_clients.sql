@@ -39,7 +39,7 @@
 -- Location: 1670 N University Dr, Suite A, Coral Springs, FL 33071
 -- Phone: (954) 227-6747 | Fax: (954) 227-6783
 -- Hours: Mon-Fri 8:00 AM - 5:00 PM
--- Online Booking: ZocDoc (not Acuity)
+-- Online Booking: Acuity Scheduling (sachedinaurology.com/appointments)
 -- Reviews: Zocdoc 4.65/5 (146 reviews, Dr. Nasheer), Vitals 4.4/5 (82 ratings)
 
 INSERT INTO clients (name, slug, google_place_id, website_url, contact_page_url, brand_color, logo_url, is_active, email_from_name, auto_send_enabled)

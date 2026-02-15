@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       token,
       status: "pending",
       location_id: locationId,
+      provider_id: null,
       source: "acuity_webhook",
     })
     .select()

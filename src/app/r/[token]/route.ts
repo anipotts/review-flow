@@ -17,11 +17,11 @@ export async function GET(
     return new NextResponse("Invalid rating", { status: 400 });
   }
 
-  // Look up review request with client and location
+  // Look up review request with client, location, and provider
   const supabase = await createClient();
   const { data: reviewRequest } = await supabase
     .from("review_requests")
-    .select("*, clients(*), locations(*)")
+    .select("*, clients(*), locations(*), providers(*)")
     .eq("token", token)
     .single();
 
@@ -31,11 +31,15 @@ export async function GET(
 
   const client = reviewRequest.clients;
   const location = reviewRequest.locations;
+  const provider = reviewRequest.providers;
 
-  // Determine redirect URL with location fallback
+  // Determine redirect URL: provider -> location -> client fallback
   let redirectUrl: string;
   if (rating === 5) {
-    const placeId = location?.google_place_id || client.google_place_id;
+    const placeId =
+      provider?.google_place_id ||
+      location?.google_place_id ||
+      client.google_place_id;
     redirectUrl = getGoogleReviewUrl(placeId);
   } else {
     redirectUrl = location?.contact_page_url || client.contact_page_url;
