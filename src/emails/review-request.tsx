@@ -18,6 +18,7 @@ interface ReviewRequestEmailProps {
   brandColor: string;
   baseUrl: string;
   token: string;
+  providerDisplayName?: string;
 }
 
 export function ReviewRequestEmail({
@@ -27,13 +28,17 @@ export function ReviewRequestEmail({
   brandColor,
   baseUrl,
   token,
+  providerDisplayName,
 }: ReviewRequestEmailProps) {
   const stars = [1, 2, 3, 4, 5];
+  const experienceName = providerDisplayName
+    ? `${providerDisplayName} at ${clientName}`
+    : clientName;
 
   return (
     <Html>
       <Head />
-      <Preview>How was your experience with {clientName}?</Preview>
+      <Preview>How was your experience with {experienceName}?</Preview>
       <Body style={body}>
         <Container style={container}>
           <Section style={{ ...card, borderTopColor: brandColor }}>
@@ -63,7 +68,7 @@ export function ReviewRequestEmail({
 
             {/* Greeting */}
             <Text style={heading}>
-              Hi {customerName}, how was your experience with {clientName}?
+              Hi {customerName}, how was your experience with {experienceName}?
             </Text>
 
             <Text style={subtext}>

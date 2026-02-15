@@ -34,6 +34,17 @@ export interface Location {
   created_at: string;
 }
 
+export interface Provider {
+  id: string;
+  client_id: string;
+  name: string;
+  display_name: string;
+  google_place_id: string | null;
+  npi: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface Patient {
   id: string;
   client_id: string;
@@ -55,6 +66,7 @@ export interface ReviewRequest {
   clicked_at: string | null;
   opened_at: string | null;
   rating_clicked: number | null;
+  provider_id: string | null;
   location_id: string | null;
   batch_id: string | null;
   source: string;
@@ -95,4 +107,10 @@ export interface ReviewRequestWithClient extends ReviewRequest {
 export interface ReviewRequestWithClientAndLocation extends ReviewRequest {
   clients: Client;
   locations: Location | null;
+}
+
+export interface ReviewRequestWithClientLocationAndProvider extends ReviewRequest {
+  clients: Client;
+  locations: Location | null;
+  providers: Provider | null;
 }

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Trash2, Copy, MapPin, Link2 } from "lucide-react";
+import { Plus, Trash2, Copy, MapPin, Link2, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Client, Location } from "@/lib/supabase/types";
+import type { Client, Location, Provider } from "@/lib/supabase/types";
 
 function slugify(str: string): string {
   return str
@@ -20,6 +20,14 @@ interface LocationRow {
   name: string;
   google_place_id: string;
   contact_page_url: string;
+}
+
+interface ProviderRow {
+  id?: string;
+  name: string;
+  display_name: string;
+  google_place_id: string;
+  npi: string;
 }
 
 interface ClientFormProps {
@@ -41,8 +49,9 @@ export function ClientForm({ client }: ClientFormProps) {
   });
 
   const [locations, setLocations] = useState<LocationRow[]>([]);
+  const [providerRows, setProviderRows] = useState<ProviderRow[]>([]);
 
-  // Load existing locations for edit mode
+  // Load existing locations and providers for edit mode
   useEffect(() => {
     if (isEdit && client?.id) {
       fetch(`/api/clients/${client.id}/locations`)
@@ -61,6 +70,24 @@ export function ClientForm({ client }: ClientFormProps) {
         })
         .catch(() => {
           toast.error("Failed to load locations for this client.");
+        });
+      fetch(`/api/clients/${client.id}/providers`)
+        .then((r) => r.json())
+        .then((data: Provider[]) => {
+          if (Array.isArray(data)) {
+            setProviderRows(
+              data.map((p) => ({
+                id: p.id,
+                name: p.name,
+                display_name: p.display_name,
+                google_place_id: p.google_place_id || "",
+                npi: p.npi || "",
+              }))
+            );
+          }
+        })
+        .catch(() => {
+          toast.error("Failed to load providers for this client.");
         });
     }
   }, [isEdit, client?.id]);
@@ -90,6 +117,23 @@ export function ClientForm({ client }: ClientFormProps) {
     );
   }
 
+  function addProvider() {
+    setProviderRows((prev) => [
+      ...prev,
+      { name: "", display_name: "", google_place_id: "", npi: "" },
+    ]);
+  }
+
+  function removeProvider(index: number) {
+    setProviderRows((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateProvider(index: number, field: keyof ProviderRow, value: string) {
+    setProviderRows((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
+    );
+  }
+
   function copyShareLink() {
     if (!client?.share_token) return;
     const url = `${window.location.origin}/shared/${client.share_token}`;
@@ -113,16 +157,29 @@ export function ClientForm({ client }: ClientFormProps) {
     if (res.ok) {
       const savedClient = await res.json();
 
+      const clientId = isEdit ? client.id : savedClient.id;
+
       // Save locations if we have any
       const validLocations = locations.filter(
         (l) => l.name && l.google_place_id && l.contact_page_url
       );
       if (validLocations.length > 0) {
-        const clientId = isEdit ? client.id : savedClient.id;
         await fetch(`/api/clients/${clientId}/locations`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ locations: validLocations }),
+        });
+      }
+
+      // Save providers if we have any
+      const validProviders = providerRows.filter(
+        (p) => p.name && p.display_name
+      );
+      if (validProviders.length > 0) {
+        await fetch(`/api/clients/${clientId}/providers`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ providers: validProviders }),
         });
       }
 
@@ -307,6 +364,80 @@ export function ClientForm({ client }: ClientFormProps) {
                   value={loc.contact_page_url}
                   onChange={(e) => updateLocation(i, "contact_page_url", e.target.value)}
                   placeholder="https://example.com/coconut-creek/contact"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Providers section */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-medium text-ink-secondary flex items-center gap-1.5">
+            <UserRound className="h-4 w-4" />
+            Providers
+          </label>
+          <button
+            type="button"
+            onClick={addProvider}
+            className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand/80 transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Provider
+          </button>
+        </div>
+
+        {providerRows.length === 0 ? (
+          <p className="text-xs text-ink-muted">
+            No providers added. Emails will use the client name instead of a specific doctor.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {providerRows.map((prov, i) => (
+              <div
+                key={i}
+                className="border border-edge rounded-lg p-4 space-y-3 relative"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-ink-muted">
+                    Provider {i + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeProvider(i)}
+                    className="p-1 text-ink-muted hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <Input
+                  id={`prov-name-${i}`}
+                  label="Full Name"
+                  value={prov.name}
+                  onChange={(e) => updateProvider(i, "name", e.target.value)}
+                  placeholder="Dr. Hina T. Gupta, MD"
+                />
+                <Input
+                  id={`prov-display-${i}`}
+                  label="Display Name (shown in emails)"
+                  value={prov.display_name}
+                  onChange={(e) => updateProvider(i, "display_name", e.target.value)}
+                  placeholder="Dr. Gupta"
+                />
+                <Input
+                  id={`prov-place-${i}`}
+                  label="Google Place ID (optional)"
+                  value={prov.google_place_id}
+                  onChange={(e) => updateProvider(i, "google_place_id", e.target.value)}
+                  placeholder="ChIJ... (leave empty to use client's)"
+                />
+                <Input
+                  id={`prov-npi-${i}`}
+                  label="NPI (optional)"
+                  value={prov.npi}
+                  onChange={(e) => updateProvider(i, "npi", e.target.value)}
+                  placeholder="1234567890"
                 />
               </div>
             ))}

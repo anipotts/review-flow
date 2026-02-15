@@ -6,7 +6,7 @@ import { getSetting } from "@/lib/settings";
 import { ReviewRequestEmail } from "@/emails/review-request";
 
 export async function POST(request: Request) {
-  const { testEmail, clientId } = await request.json();
+  const { testEmail, clientId, providerId } = await request.json();
 
   if (!testEmail) {
     return NextResponse.json({ error: "Please enter an email address to send the test to." }, { status: 400 });
@@ -34,6 +34,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No active clients found. Create a client before sending a test." }, { status: 404 });
   }
 
+  // Fetch provider if specified
+  let provider = null;
+  if (providerId) {
+    const { data } = await supabase
+      .from("providers")
+      .select("*")
+      .eq("id", providerId)
+      .single();
+    provider = data;
+  }
+
   const token = generateToken();
 
   // Create review request with test source
@@ -45,6 +56,7 @@ export async function POST(request: Request) {
       customer_email: testEmail,
       token,
       status: "pending",
+      provider_id: providerId || null,
       source: "test",
     })
     .select()
@@ -55,7 +67,12 @@ export async function POST(request: Request) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const fromName = client.email_from_name || "MaMaDigital";
+  const fromName = provider
+    ? `${provider.display_name}'s Office`
+    : client.email_from_name || "MaMaDigital";
+  const experienceName = provider
+    ? `${provider.display_name} at ${client.name}`
+    : client.name;
   const emailFrom = await getSetting("EMAIL_FROM") || "ReviewFlow <feedback@dadadigital.com>";
   const fromEmail = emailFrom.match(/<(.+)>/)?.[1] || "feedback@dadadigital.com";
 
@@ -63,7 +80,7 @@ export async function POST(request: Request) {
   const { error: emailError } = await resend.emails.send({
     from: `${fromName} <${fromEmail}>`,
     to: testEmail,
-    subject: `[TEST] How was your experience with ${client.name}?`,
+    subject: `[TEST] How was your experience with ${experienceName}?`,
     react: ReviewRequestEmail({
       customerName: "Test User",
       clientName: client.name,
@@ -71,6 +88,7 @@ export async function POST(request: Request) {
       brandColor: client.brand_color,
       baseUrl,
       token,
+      providerDisplayName: provider?.display_name,
     }),
   });
 
